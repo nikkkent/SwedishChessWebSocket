@@ -21,8 +21,7 @@ class Cell:
 
 class Board:
     def __init__(self):
-        self.field = [[Cell() for _ in range(8)] for _ in range(8)]
-        self.r = {'w': (0, 4), 'b': (7, 4)}
+        self.field = [[Cell() for j in range(8)] for i in range(8)]
         self.r_moved = {'w': False, 'b': False}
         self.l_moved = {'w0': False, 'w7': False, 'b0': False, 'b7': False}
         self.turn = 'w'
@@ -36,8 +35,8 @@ class Board:
     def start(self):
         fig_set = ['l', 'k', 's', 'f', 'r', 's', 'k', 'l']
         self[0] = [Cell(fig_set[i], 'w') for i in range(8)]
-        self[1] = [Cell('p', 'w') for _ in range(8)]
-        self[6] = [Cell('p', 'b') for _ in range(8)]
+        self[1] = [Cell('p', 'w') for i in range(8)]
+        self[6] = [Cell('p', 'b') for i in range(8)]
         self[7] = [Cell(fig_set[i], 'b') for i in range(8)]
 
     def display(self):
@@ -46,12 +45,12 @@ class Board:
                 print(self[i][j].color, self[i][j].figure, sep='', end=' ')
             print()
 
-    def moves(self, s_x, s_y, check=False):
+    def moves(self, s_x, s_y):
         moves = []
         Cell = self[s_x][s_y]
         if Cell.figure in bigfigs:
             D = dirD[Cell.figure]
-            for d in D:  # d имеет формат (шаг по x, шаг по y, range), например (+1, -1, 1)
+            for d in D:
                 x, y = s_x, s_y
                 dx, dy, r = d
                 i, tag = 0, True
@@ -64,8 +63,6 @@ class Board:
                     elif self[x][y].color == Cell.color:
                         tag = False
                     elif self[x][y].figure == 'r':
-                        if check:
-                            moves.append((x, y))
                         tag = False
                     else:
                         moves.append((x, y))
@@ -76,34 +73,94 @@ class Board:
             dP = {'w': 1, 'b': -1}
             dx = dP[Cell.color]
 
-            if self[s_x + dx][s_y].color == '.' and not check:
+            f_front = self[s_x + dx][s_y]
+            if f_front.color == '.':
                 moves.append((s_x + dx, s_y))
-            if s_y < 7 and self[s_x + dx][s_y + 1].color not in ['.', Cell.color] and (
-                    self[s_x + dx][s_y + 1].figure != 'r' or check):
-                moves.append((s_x + dx, s_y + 1))
-            if s_y > 0 and self[s_x + dx][s_y - 1].color not in ['.', Cell.color] and (
-                    self[s_x + dx][s_y - 1].figure != 'r' or check):
-                moves.append((s_x + dx, s_y - 1))
-            if s_y < 7 and self[s_x + dx][s_y + 1].color == '.' and check:
-                moves.append((s_x + dx, s_y + 1))
-            if s_y > 0 and self[s_x + dx][s_y - 1].color == '.' and check:
-                moves.append((s_x + dx, s_y - 1))
+
+            if s_y < 7:
+                right_front = self[s_x + dx][s_y + 1]
+                if right_front.color not in ['.', Cell.color] and right_front.figure != 'r':
+                    moves.append((s_x + dx, s_y + 1))
+            if s_y > 0:
+                left_front = self[s_x + dx][s_y - 1]
+                if left_front.color not in ['.', Cell.color] and left_front.figure != 'r':
+                    moves.append((s_x + dx, s_y - 1))
 
             sP = {'w': 1, 'b': 6}
-            if s_x == sP[Cell.color] and (self[s_x + dx][s_y].color, self[s_x + 2 * dx][s_y].color) == (
-                    '.', '.') and not check:
-                moves.append((s_x + 2 * dx, s_y))
+            if s_x == sP[Cell.color]:
+                ff_front = self[s_x + 2 * dx][s_y]
+                if (f_front.color, ff_front.color) == ('.', '.'):
+                    moves.append((s_x + 2 * dx, s_y))
 
         return moves
+
+    def attacks_royal(self, s_x, s_y):
+        Cell = self[s_x][s_y]
+        if Cell.figure in bigfigs:
+            D = dirD[Cell.figure]
+            for d in D:
+                x, y = s_x, s_y
+                dx, dy, r = d
+                i, tag = 0, True
+                while i < r and tag:
+                    x, y = x + dx, y + dy
+                    if x not in range(8) or y not in range(8):
+                        tag = False
+                    elif self[x][y].color == Cell.color:
+                        tag = False
+                    elif self[x][y].figure == 'r':
+                        return True
+                    elif self[x][y].figure != '.':
+                        tag = False
+                    i += 1
+            return False
+
+        elif Cell.figure == 'p':
+            dP = {'w': 1, 'b': -1}
+            dx = dP[Cell.color]
+
+            if s_y < 7:
+                right_front = self[s_x + dx][s_y + 1]
+                if right_front.color not in ['.', Cell.color] and right_front.figure == 'r':
+                    return True
+            if s_y > 0:
+                left_front = self[s_x + dx][s_y - 1]
+                if left_front.color not in ['.', Cell.color] and left_front.figure == 'r':
+                    return True
+            return False
 
     def check(self, color):
         for i in range(8):
             for j in range(8):
                 if self[i][j].color not in ['.', color]:
-                    M = self.moves(i, j, check=True)
-                    if self.r[color] in M:
+                    if self.attacks_royal(i, j):
                         return True
         return False
+
+    def checkmate(self, color):
+        for start_x in range(8):
+            for start_y in range(8):
+                if self[start_x][start_y].color == color:
+                    M = self.moves(start_x, start_y)
+                    for m in M:
+                        end_x, end_y = m
+                        nextBoard = Board()
+                        nextBoard.field = [[self[i][j] for j in range(8)] for i in range(8)]
+
+                        nextBoard[end_x][end_y] = Cell(nextBoard[start_x][start_y].figure, color)
+                        nextBoard[start_x][start_y] = Cell()
+                        if not nextBoard.check(color):
+                            del nextBoard
+                            return False
+                elif self[start_x][start_y].color == '.':
+                    nextBoard = Board()
+                    nextBoard.field = [[self[i][j] for j in range(8)] for i in range(8)]
+
+                    nextBoard[start_x][start_y] = Cell('f', color)
+                    if not nextBoard.check(color):
+                        del nextBoard
+                        return 'Must place a figure'
+        return True
 
     def castling(self, color, direction):
         castD = {'w': 0, 'b': 7}
@@ -129,42 +186,11 @@ class Board:
 
         self[x][5].figure = 'l'
         self[x][rook].figure = 'r'
-        self.r[color] = (x, rook)
         self.r_moved[color] = True
 
-    def checkmate(self, color):
-        for start_x in range(8):
-            for start_y in range(8):
-                if self[start_x][start_y].color == color:
-                    M = self.moves(start_x, start_y)
-                    for m in M:
-                        end_x, end_y = m
-                        nextBoard = Board()
-                        nextBoard.field = [[self[i][j] for j in range(8)] for i in range(8)]
-                        nextBoard.r = self.r
 
-                        nextBoard[end_x][end_y] = Cell(nextBoard[start_x][start_y].figure, color)
-                        nextBoard[start_x][start_y] = Cell()
-                        if nextBoard[end_x][end_y].figure == 'r':
-                            nextBoard.r[color] = (end_x, end_y)
-
-                        if not nextBoard.check(color):
-                            del nextBoard
-                            return False
-                elif self[start_x][start_y].color == '.':
-                    nextBoard = Board()
-                    nextBoard.field = [[self[i][j] for j in range(8)] for i in range(8)]
-                    nextBoard.r = self.r
-
-                    nextBoard[start_x][start_y] = Cell('f', color)
-                    if not nextBoard.check(color):
-                        del nextBoard
-                        return 'Must place a figure'
-        return True
-
-
-class Game:  # создаем игру
-    def __init__(self, n=2):  # задаем число досок/полей
+class Game:
+    def __init__(self, n=2):
         self.Boards = [Board() for i in range(n)]
         for i in range(n):
             self.Boards[i].start()
@@ -175,7 +201,7 @@ class Game:  # создаем игру
 
         currBoard = self.Boards[index]
         if currBoard[start_x][start_y].color != currBoard.turn:
-            return 'Not Yout Turn'
+            return 'Not Your Turn'
 
         M = currBoard.moves(start_x, start_y)
 
@@ -186,12 +212,10 @@ class Game:  # создаем игру
 
             nextBoard = Board()
             nextBoard.field = [[currBoard[i][j] for j in range(8)] for i in range(8)]
-            nextBoard.r = currBoard.r
 
             nextBoard[end_x][end_y] = Cell(curr_fig, curr_col)
             nextBoard[start_x][start_y] = Cell()
             if curr_fig == 'r':
-                nextBoard.r[curr_col] = (end_x, end_y)
                 nextBoard.r_moved[curr_col] = True
             if curr_fig == 'l' and start_y in [0, 7]:
                 nextBoard.l_moved[curr_col + str(curr_col)] = True
@@ -212,22 +236,6 @@ class Game:  # создаем игру
     def get_color(self, index):
         return self.Boards[index].turn
 
-    def display_moves(self, index, start):
-        start_x, start_y = (int(start[1]) - 1, ord(start[0]) - ord('a'))
-
-        currBoard = self.Boards[index]
-        M = currBoard.moves(start_x, start_y)
-
-        for i in range(7, -1, -1):
-            for j in range(8):
-                if (i, j) in M and currBoard[i][j].color == '.':
-                    print('**', sep='', end=' ')
-                elif (i, j) in M and currBoard[i][j].color != '.':
-                    print('*' + currBoard[i][j].figure, sep='', end=' ')
-                else:
-                    print(currBoard[i][j].color, currBoard[i][j].figure, sep='', end=' ')
-            print()
-
     def add_figure(self, index, position, asg_figure, color):
         Asgar = {'R': 'l',
                  'N': 'k',
@@ -238,24 +246,40 @@ class Game:  # создаем игру
         currBoard = self.Boards[index]
         x, y = (int(position[1]) - 1, ord(position[0]) - ord('a'))
         if color != currBoard.turn:
-            return 'Not Yout Turn'
+            return 'Not Your Turn'
         figure = Asgar[asg_figure]
 
-        nextBoard = Board()
-        nextBoard.field = [[currBoard[i][j] for j in range(8)] for i in range(8)]
-
-        if nextBoard[x][y].color == '.' and (figure != 'p' or x not in [0, 7]):
+        if currBoard[x][y].color == '.' and (figure != 'p' or x not in [0, 7]):
+            nextBoard = Board()
+            nextBoard.field = [[currBoard[i][j] for j in range(8)] for i in range(8)]
             nextBoard[x][y] = Cell(figure, color)
-            if nextBoard.check('w') or nextBoard.check('b'):
+            if nextBoard.check(color):
                 del nextBoard
                 return '!'
 
             self.Boards[index] = nextBoard
             del currBoard
 
-            tempD = {'w': 'b', 'b': 'w'}
-            self.Boards[index].turn = tempD[color]
+            turnD = {'w': 'b', 'b': 'w'}
+            self.Boards[index].turn = turnD[color]
 
             self.Boards[index].display()
             return figure
         return '!'
+
+    def possible_placements(self, index, figure, color):
+        currBoard = self.Boards[index]
+        for x in range(7, -1, -1):
+            for y in range(8):
+                if currBoard[x][y].color == '.' and (figure != 'p' or x not in [0, 7]):
+                    nextBoard = Board()
+                    nextBoard.field = [[currBoard[i][j] for j in range(8)] for i in range(8)]
+                    nextBoard[x][y] = Cell(figure, color)
+                    if nextBoard.check(color):
+                        print('!!', end=' ')
+                    else:
+                        print(color, figure.upper(), sep='', end=' ')
+                    del nextBoard
+                else:
+                    print(currBoard[x][y].color, currBoard[x][y].figure, sep='', end=' ')
+            print()
