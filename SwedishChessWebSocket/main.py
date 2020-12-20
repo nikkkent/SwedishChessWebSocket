@@ -3,6 +3,8 @@ import websockets
 import json
 import Board
 
+print('ya ebal')
+
 class Server:
     clients = dict()
     slots = [False] * 4
