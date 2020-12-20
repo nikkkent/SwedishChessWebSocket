@@ -118,6 +118,8 @@ class Board:
         elif Cell.figure == 'p':
             dP = {'w': 1, 'b': -1}
             dx = dP[Cell.color]
+            if s_x + dx not in range(8):
+                return False
 
             if s_y < 7:
                 right_front = self[s_x + dx][s_y + 1]
