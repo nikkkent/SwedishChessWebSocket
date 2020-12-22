@@ -223,7 +223,7 @@ class Game:
 
             nextBoard = Board()
             nextBoard.field = [[currBoard[i][j] for j in range(8)] for i in range(8)]
-            nextBoard.r_turn, nextBoard.l_turn = currBoard.r_turn, currBoard.l_turn
+            nextBoard.r_moved, nextBoard.l_moved = currBoard.r_moved, currBoard.l_moved
 
             nextBoard[end_x][end_y] = Cell(curr_fig, curr_col)
             nextBoard[start_x][start_y] = Cell()
