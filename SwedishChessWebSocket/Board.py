@@ -282,7 +282,7 @@ class Game:
             self.Boards[index].turn = tempD[curr_col]
             self.Boards[index].display()
             endD = {'w' : 7, 'b' : 0}
-            if curr_fig == 'p' and end_y == endD[color]:
+            if curr_fig == 'p' and end_y == endD[curr_col]:
                 return '+'
             return temp_fig
         return '!'
