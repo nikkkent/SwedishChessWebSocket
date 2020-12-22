@@ -129,6 +129,41 @@ class Board:
                     return True
             return False
 
+
+    def attacks_cell(self, s_x, s_y, target_x, target_y):
+        Cell = self[s_x][s_y]
+        if Cell.figure in bigfigs:
+            D = dirD[Cell.figure]
+            for d in D:
+                x, y = s_x, s_y
+                dx, dy, r = d
+                i, tag = 0, True
+                while i < r and tag:
+                    x, y = x + dx, y + dy
+                    if x not in range(8) or y not in range(8):
+                        tag = False
+                    elif self[x][y].color == Cell.color:
+                        tag = False
+                    elif self[x][y].figure != '.':
+                        tag = False
+                    elif x, y == target_x, target_y:
+                        return True
+                    i += 1
+            return False
+
+        elif Cell.figure == 'p':
+            dP = {'w': 1, 'b': -1}
+            dx = dP[Cell.color]
+
+            if s_y < 7:
+                right_front = self[s_x + dx][s_y + 1]
+                if right_front.color not in ['.', Cell.color] and right_front.figure == 'r':
+                    return True
+            if s_y > 0:
+                left_front = self[s_x + dx][s_y - 1]
+                if left_front.color not in ['.', Cell.color] and left_front.figure == 'r':
+                    return True
+            return False
     def check(self, color):
         for i in range(8):
             for j in range(8):
@@ -181,9 +216,8 @@ class Board:
         for i in range(8):
             for j in range(8):
                 if self[i][j].color not in ['.', color]:
-                    M = self.moves(i, j)
                     for y in range(a, b):
-                        if self[x][y] in M:
+                        if self.attacks_cell(i, j, x, y):
                             return '!'
 
         self[x][4], self[x][rook] = Cell(), Cell()
