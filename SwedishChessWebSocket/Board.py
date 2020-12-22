@@ -170,7 +170,7 @@ class Board:
 
         x = castD[color]
         a, b, rook = castF[direction]
-
+        print(self.r_moved)
         if self.r_moved[color] or self.l_moved[color + str(rook)]:
             return '!'
 
@@ -226,10 +226,13 @@ class Game:
 
             nextBoard[end_x][end_y] = Cell(curr_fig, curr_col)
             nextBoard[start_x][start_y] = Cell()
+            print('in (end_x, end_y)', curr_fig)
             if curr_fig == 'r':
+                print('in curr_fig')
                 nextBoard.r_moved[curr_col] = True
+                print(nextBoard.r_moved)
             if curr_fig == 'l' and start_y in [0, 7]:
-                nextBoard.l_moved[curr_col + str(curr_col)] = True
+                nextBoard.l_moved[curr_col + str(start_y)] = True
 
             if nextBoard.check(curr_col):
                 del nextBoard
