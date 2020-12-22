@@ -6,13 +6,13 @@ import Board
 
 async def is_castling(begin, end):
     if begin == 'e1' and end == 'g1':
-        return True
+        return 'w', 'r', 's'
     if begin == 'e1' and end == 'c1':
-        return True
+        return 'w', 'l', 'l'
     if begin == 'e8' and end == 'g8':
-        return True
+        return 'b', 'r', 's'
     if begin == 'e8' and end == 'c8':
-        return True
+        return 'b', 'l', 'l'
     return False
 
 
@@ -80,29 +80,40 @@ class Server:
         begin = m_js['from']['h'] + str(m_js['from']['v'])
         end = m_js['to']['h'] + str(m_js['to']['v'])
         num_board = 0 if index == 0 or index == 2 else 1
-        if is_castling(begin, end):
-            self.game.cas
-        print(f'before move {self.game.get_color(num_board)}, board: {num_board}')
-        figure = self.game.move(num_board, begin, end)
-        if figure not in '.!?':
-            new_index = 1
-            if index == 2:
-                new_index = 3
-            if index == 1:
-                new_index = 0
-            if index == 3:
-                new_index = 2
-            login_send = self.slots[new_index]
-            await self.sent_by_login(login_send, json.dumps({'type': 'add_piece', 'piece': figure}))
-        if figure not in '!?':
-            m_js['login'] = login
-            m_js['turn'] = 'white'
-            if self.game.get_color(num_board) == 'b':
-                m_js['turn'] = 'black'
-            print(f'before send {self.game.get_color(num_board)}')
-            await self.sent_to_clients(json.dumps(m_js))
+        castling = is_castling(begin, end)
+        if castling:
+            res = self.game.castling(num_board, castling[0], castling[1])
+            if res == '.':
+                m_js['login'] = login
+                m_js['turn'] = 'white'
+                if self.game.get_color(num_board) == 'b':
+                    m_js['turn'] = 'black'
+                m_js['type_castling'] = castling[2]
+                m_js['is_castling'] = True
+                await self.sent_to_clients(json.dumps({m_js}))
+            else:
+                await self.sent_by_login(login, json.dumps({'type': 'invalid_step'}))
         else:
-            await self.sent_by_login(login, json.dumps({'type': 'invalid_step'}))
+            figure = self.game.move(num_board, begin, end)
+            if figure not in '.!?':
+                new_index = 1
+                if index == 2:
+                    new_index = 3
+                if index == 1:
+                    new_index = 0
+                if index == 3:
+                    new_index = 2
+                login_send = self.slots[new_index]
+                await self.sent_by_login(login_send, json.dumps({'type': 'add_piece', 'piece': figure}))
+            if figure not in '!?':
+                m_js['login'] = login
+                m_js['turn'] = 'white'
+                if self.game.get_color(num_board) == 'b':
+                    m_js['turn'] = 'black'
+                print(f'before send {self.game.get_color(num_board)}')
+                await self.sent_to_clients(json.dumps(m_js))
+            else:
+                await self.sent_by_login(login, json.dumps({'type': 'invalid_step'}))
 
     async def new_piece(self, m_js, login):
         position = m_js['position']
