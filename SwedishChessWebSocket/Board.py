@@ -129,7 +129,6 @@ class Board:
                     return True
             return False
 
-
     def attacks_cell(self, s_x, s_y, target_x, target_y):
         Cell = self[s_x][s_y]
         if Cell.figure in bigfigs:
@@ -146,7 +145,7 @@ class Board:
                         tag = False
                     elif self[x][y].figure != '.':
                         tag = False
-                    elif x, y == target_x, target_y:
+                    elif x == target_x and y == target_y:
                         return True
                     i += 1
             return False
@@ -164,6 +163,7 @@ class Board:
                 if left_front.color not in ['.', Cell.color] and left_front.figure == 'r':
                     return True
             return False
+
     def check(self, color):
         for i in range(8):
             for j in range(8):
