@@ -95,7 +95,7 @@ class Server:
                 await self.sent_by_login(login, json.dumps({'type': 'invalid_step'}))
         else:
             figure = self.game.move(num_board, begin, end)
-            if figure not in '.!?':
+            if figure not in '+.!?':
                 new_index = 1
                 if index == 2:
                     new_index = 3
@@ -105,6 +105,8 @@ class Server:
                     new_index = 2
                 login_send = self.slots[new_index]
                 await self.sent_by_login(login_send, json.dumps({'type': 'add_piece', 'piece': figure}))
+            if figure == '+':
+                await self.sent_by_login(login, json.dumps({'type': 'pawn_wire'}))
             if figure not in '!?':
                 m_js['login'] = login
                 m_js['turn'] = 'white'

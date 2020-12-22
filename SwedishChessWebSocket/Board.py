@@ -205,7 +205,7 @@ class Board:
 
         x = castD[color]
         a, b, rook = castF[direction]
-        print(self.r_moved)
+        print(f'l_moved {self.l_moved}')
         if self.r_moved[color] or self.l_moved[color + str(rook)]:
             return '!'
 
