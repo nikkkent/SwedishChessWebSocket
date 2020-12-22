@@ -163,6 +163,8 @@ class Board:
         return True
 
     def castling(self, color, direction):
+        if color != self.turn:
+            return 'Not Your Turn'
         castD = {'w': 0, 'b': 7}
         castF = {'l': (0, 5, 0), 'r': (4, 8, 7)}
 
@@ -187,6 +189,8 @@ class Board:
         self[x][5].figure = 'l'
         self[x][rook].figure = 'r'
         self.r_moved[color] = True
+        tempD = {'w': 'b', 'b': 'w'}
+        self.turn = tempD[color]
         return '.'
 
 
