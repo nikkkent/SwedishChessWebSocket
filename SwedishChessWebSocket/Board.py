@@ -286,4 +286,4 @@ class Game:
             print()
 
     def castling(self, index, color, direction):
-        self.Boards[index].castling(color, direction)
+        return self.Boards[index].castling(color, direction)
