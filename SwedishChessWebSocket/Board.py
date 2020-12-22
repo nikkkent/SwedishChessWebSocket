@@ -216,7 +216,7 @@ class Board:
         for i in range(8):
             for j in range(8):
                 if self[i][j].color not in ['.', color]:
-                    if attacks_royal(i, j):
+                    if self.attacks_royal(i, j):
                         return '!'
                     for y in range(a, b):
                         if self.attacks_cell(i, j, x, y):
