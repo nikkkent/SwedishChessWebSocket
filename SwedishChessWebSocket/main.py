@@ -3,7 +3,6 @@ import websockets
 import json
 import Board
 
-print('andrey')
 
 class Server:
     clients = dict()

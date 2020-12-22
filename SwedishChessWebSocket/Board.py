@@ -170,11 +170,11 @@ class Board:
         a, b, rook = castF[direction]
 
         if self.r_moved[color] or self.l_moved[color + str(rook)]:
-            return 'Invalid Move'
+            return '!'
 
         for y in range(a + 1, b - 1):
             if self[x][y].figure != '.':
-                return 'Path not Clear'
+                return '!'
 
         for i in range(8):
             for j in range(8):
@@ -182,11 +182,12 @@ class Board:
                     M = self.moves(i, j, check=True)
                     for y in range(a, b):
                         if self[x][y] in M:
-                            return 'Path under Attack'
+                            return '!'
 
         self[x][5].figure = 'l'
         self[x][rook].figure = 'r'
         self.r_moved[color] = True
+        return '.'
 
 
 class Game:
