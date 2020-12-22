@@ -284,3 +284,6 @@ class Game:
                 else:
                     print(currBoard[x][y].color, currBoard[x][y].figure, sep='', end=' ')
             print()
+
+    def castling(self, index, color, direction):
+        self.Boards[index].castling(color, direction)

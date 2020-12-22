@@ -4,6 +4,18 @@ import json
 import Board
 
 
+async def is_castling(begin, end):
+    if begin == 'e1' and end == 'g1':
+        return True
+    if begin == 'e1' and end == 'c1':
+        return True
+    if begin == 'e8' and end == 'g8':
+        return True
+    if begin == 'e8' and end == 'c8':
+        return True
+    return False
+
+
 class Server:
     clients = dict()
     slots = [False] * 4
@@ -68,6 +80,8 @@ class Server:
         begin = m_js['from']['h'] + str(m_js['from']['v'])
         end = m_js['to']['h'] + str(m_js['to']['v'])
         num_board = 0 if index == 0 or index == 2 else 1
+        if is_castling(begin, end):
+            self.game.cas
         print(f'before move {self.game.get_color(num_board)}, board: {num_board}')
         figure = self.game.move(num_board, begin, end)
         if figure not in '.!?':
