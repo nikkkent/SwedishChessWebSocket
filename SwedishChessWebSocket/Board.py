@@ -229,7 +229,7 @@ class Game:
             if curr_fig == 'r':
                 nextBoard.r_moved[curr_col] = True
             if curr_fig == 'l' and start_y in [0, 7]:
-                nextBoard.l_moved[curr_col + str(curr_col)] = True
+                nextBoard.l_moved[curr_col + str(start_y)] = True
 
             if nextBoard.check(curr_col):
                 del nextBoard
