@@ -186,8 +186,14 @@ class Board:
                         if self[x][y] in M:
                             return '!'
 
-        self[x][5].figure = 'l'
-        self[x][rook].figure = 'r'
+        self[x][4], self[x][rook] = Cell(), Cell()
+        if direction == 'l':
+            self[x][2] = Cell('r', color)
+            self[x][3] = Cell('l', color)
+        elif direction == 'r':
+            self[x][6] = Cell('r', color)
+            self[x][5] = Cell('l', color)
+
         self.r_moved[color] = True
         tempD = {'w': 'b', 'b': 'w'}
         self.turn = tempD[color]
