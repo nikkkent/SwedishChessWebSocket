@@ -265,10 +265,10 @@ class Game:
             nextBoard[start_x][start_y] = Cell()
             print('in (end_x, end_y)', curr_fig)
             if curr_fig == 'r':
-                print('in curr_fig')
                 nextBoard.r_moved[curr_col] = True
-                print(nextBoard.r_moved)
             if curr_fig == 'l' and start_y in [0, 7]:
+                print('in curr_fig')
+                print(nextBoard.l_moved)
                 nextBoard.l_moved[curr_col + str(start_y)] = True
 
             if nextBoard.check(curr_col):
@@ -282,7 +282,8 @@ class Game:
             self.Boards[index].turn = tempD[curr_col]
             self.Boards[index].display()
             endD = {'w' : 7, 'b' : 0}
-            if curr_fig == 'p' and end_y == endD[curr_col]:
+            print('pawn_wire', curr_fig, end_x, endD[curr_col])
+            if curr_fig == 'p' and end_x == endD[curr_col]:
                 return '+'
             return temp_fig
         return '!'
