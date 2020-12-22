@@ -179,7 +179,7 @@ class Board:
         for i in range(8):
             for j in range(8):
                 if self[i][j].color not in ['.', color]:
-                    M = self.moves(i, j, check=True)
+                    M = self.moves(i, j)
                     for y in range(a, b):
                         if self[x][y] in M:
                             return '!'

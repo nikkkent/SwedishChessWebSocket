@@ -4,7 +4,7 @@ import json
 import Board
 
 
-async def is_castling(begin, end):
+def is_castling(begin, end):
     if begin == 'e1' and end == 'g1':
         return 'w', 'r', 's'
     if begin == 'e1' and end == 'c1':
@@ -90,7 +90,7 @@ class Server:
                     m_js['turn'] = 'black'
                 m_js['type_castling'] = castling[2]
                 m_js['is_castling'] = True
-                await self.sent_to_clients(json.dumps({m_js}))
+                await self.sent_to_clients(json.dumps(m_js))
             else:
                 await self.sent_by_login(login, json.dumps({'type': 'invalid_step'}))
         else:
